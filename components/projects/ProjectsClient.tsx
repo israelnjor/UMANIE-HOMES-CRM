@@ -76,7 +76,7 @@ export default function ProjectsClient({
   const [isPending, startTransition] = useTransition();
 
   const { register, handleSubmit, reset, formState: { errors, isSubmitting } } =
-    useForm<ProjectForm>({ resolver: zodResolver(projectSchema) });
+    useForm<ProjectForm>({ resolver: zodResolver(projectSchema)  as any });
 
   // ── Stats ────────────────────────────────────────────
   const active    = projects.filter((p) => p.status === "in_progress").length;

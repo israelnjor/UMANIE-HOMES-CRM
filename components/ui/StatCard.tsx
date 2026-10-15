@@ -2,27 +2,35 @@
 import { cn } from "@/lib/utils";
 import { TrendingUp, TrendingDown, Minus } from "lucide-react";
 
+type AccentColor = "default" | "primary" | "accent" | "success" | "warning" | "danger";
+
 interface StatCardProps {
   title: string;
   value: string | number;
   subtitle?: string;
   icon?: React.ReactNode;
   trend?: {
-    value: number; // percentage, e.g. 12.5
-    label?: string; // e.g. "vs last month"
+    value: number;
+    label?: string;
   };
-  variant?: "default" | "primary" | "accent" | "success" | "warning" | "danger";
+  variant?: AccentColor;
   className?: string;
   loading?: boolean;
 }
 
-const variants = {
-  default:  { card: "bg-card",                icon: "bg-surface text-ink-muted" },
-  primary:  { card: "bg-primary text-white",  icon: "bg-white/10 text-white" },
-  accent:   { card: "bg-accent text-primary", icon: "bg-black/10 text-primary" },
-  success:  { card: "bg-success-bg",          icon: "bg-success/10 text-success" },
-  warning:  { card: "bg-warning-bg",          icon: "bg-warning/10 text-warning" },
-  danger:   { card: "bg-danger-bg",           icon: "bg-danger/10 text-danger" },
+const iconAccents: Record<AccentColor, string> = {
+  default:  "bg-surface text-ink-muted",
+  primary:  "bg-primary/10 text-primary",
+  accent:   "bg-accent/15 text-accent-700",
+  success:  "bg-success-bg text-success",
+  warning:  "bg-warning-bg text-warning",
+  danger:   "bg-danger-bg text-danger",
+};
+
+const trendColors: Record<"up" | "down" | "flat", string> = {
+  up:   "text-success",
+  down: "text-danger",
+  flat: "text-ink-muted",
 };
 
 export default function StatCard({
@@ -35,70 +43,38 @@ export default function StatCard({
   className,
   loading = false,
 }: StatCardProps) {
-  const v = variants[variant];
-  const isColored = variant !== "default";
-
-  const trendColor =
-    !trend ? "" :
-    trend.value > 0 ? (isColored ? "text-white/80" : "text-success") :
-    trend.value < 0 ? (isColored ? "text-white/80" : "text-danger") :
-    (isColored ? "text-white/60" : "text-ink-muted");
-
-  const TrendIcon =
-    !trend ? null :
-    trend.value > 0 ? TrendingUp :
-    trend.value < 0 ? TrendingDown :
-    Minus;
+  const trendDir = !trend ? null : trend.value > 0 ? "up" : trend.value < 0 ? "down" : "flat";
+  const TrendIcon = trendDir === "up" ? TrendingUp : trendDir === "down" ? TrendingDown : Minus;
 
   if (loading) {
     return (
-      <div className={cn("rounded-xl border border-border p-5 shadow-card animate-pulse", v.card, className)}>
-        <div className="h-4 w-24 bg-black/10 rounded mb-4" />
-        <div className="h-8 w-32 bg-black/10 rounded mb-2" />
-        <div className="h-3 w-20 bg-black/10 rounded" />
+      <div className={cn("rounded-xl border border-border bg-card p-5 shadow-card animate-pulse", className)}>
+        <div className="h-3 w-20 bg-border rounded mb-4" />
+        <div className="h-7 w-28 bg-border rounded mb-2" />
+        <div className="h-3 w-16 bg-border rounded" />
       </div>
     );
   }
 
   return (
-    <div
-      className={cn(
-        "rounded-xl border border-border p-5 shadow-card",
-        v.card,
-        className
-      )}
-    >
+    <div className={cn("rounded-xl border border-border bg-card p-5 shadow-card", className)}>
       <div className="flex items-start justify-between gap-3">
         <div className="flex-1 min-w-0">
-          <p className={cn(
-            "text-sm font-medium truncate",
-            isColored ? "text-white/70" : "text-ink-muted"
-          )}>
+          <p className="text-xs font-semibold text-ink-muted uppercase tracking-wide truncate">
             {title}
           </p>
-
-          <p className={cn(
-            "text-2xl font-bold mt-1 tracking-tight",
-            isColored ? "text-white" : "text-ink"
-          )}>
+          <p className="text-2xl font-bold text-ink mt-1.5 tracking-tight">
             {value}
           </p>
-
           {subtitle && (
-            <p className={cn(
-              "text-xs mt-0.5 truncate",
-              isColored ? "text-white/60" : "text-ink-muted"
-            )}>
-              {subtitle}
-            </p>
+            <p className="text-xs text-ink-muted mt-0.5 truncate">{subtitle}</p>
           )}
-
-          {trend && TrendIcon && (
-            <div className={cn("flex items-center gap-1 mt-2 text-xs font-medium", trendColor)}>
+          {trend && trendDir && (
+            <div className={cn("flex items-center gap-1 mt-2 text-xs font-medium", trendColors[trendDir])}>
               <TrendIcon size={13} />
               <span>
                 {trend.value > 0 ? "+" : ""}{trend.value}%
-                {trend.label && <span className="font-normal ml-1">{trend.label}</span>}
+                {trend.label && <span className="font-normal text-ink-muted ml-1">{trend.label}</span>}
               </span>
             </div>
           )}
@@ -107,7 +83,7 @@ export default function StatCard({
         {icon && (
           <div className={cn(
             "w-11 h-11 rounded-xl flex items-center justify-center shrink-0",
-            v.icon
+            iconAccents[variant]
           )}>
             {icon}
           </div>

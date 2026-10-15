@@ -123,9 +123,9 @@ export default function ProjectDetailClient({
   const [serverError, setServerError] = useState("");
   const [isPending, startTransition] = useTransition();
 
-  const invForm  = useForm<InventoryForm>({ resolver: zodResolver(inventorySchema) });
-  const labForm  = useForm<LabourForm>({ resolver: zodResolver(labourSchema) });
-  const expForm  = useForm<ExpenseForm>({ resolver: zodResolver(expenseSchema) });
+  const invForm  = useForm<InventoryForm>({ resolver: zodResolver(inventorySchema) as any });
+  const labForm  = useForm<LabourForm>({ resolver: zodResolver(labourSchema) as any });
+  const expForm  = useForm<ExpenseForm>({ resolver: zodResolver(expenseSchema) as any });
 
   // ── Budget calc ──────────────────────────────────────
   const budgetUsed    = project.total_spent ?? 0;
